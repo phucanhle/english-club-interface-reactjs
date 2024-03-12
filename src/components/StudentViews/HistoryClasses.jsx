@@ -1,29 +1,27 @@
+import React, { useState, useEffect } from "react";
 import Items from "./Items";
-const HistoryClasses = () => {
-    const class1 = {
-        nameClass: "SC",
-        duration: 1,
-        location: "Tầng 1 TTTM Vivo city quận 7",
-        scores: 70,
-        date: "05/03/2024",
-    };
-    const class2 = {
-        nameClass: "CC",
-        duration: 1,
-        location: "Tầng 3 TTTM Lotte Mart quận 7",
-        scores: 80,
-        date: "01/03/2024",
-    };
-    const class3 = {
-        nameClass: "SC",
-        duration: 1,
-        location: "Tầng 3 TTTM Lotte Mart quận 7",
-        scores: 70,
-        date: "15/02/2024",
-    };
+import userService from "../../services/userServices";
+
+const HistoryClasses = ({ student }) => {
+    const [classes, setClasses] = useState([]);
+
+    useEffect(() => {
+        const loadHistory = async (idStudent) => {
+            try {
+                const result = await userService.getClassOfStudent(idStudent);
+                setClasses(result);
+            } catch (error) {
+                console.error("Error loading history:", error);
+            }
+        };
+
+        loadHistory(student.id);
+    }, [student.id]);
+
     return (
         <div className="overflow-x-auto">
-            <h3 class="my-5 text-3xl font-bold text-center dark:text-white">Lịch sử lớp học</h3>
+            <h3 className="my-5 text-3xl font-bold text-center dark:text-white">Lịch sử lớp học</h3>
+            {classes.length === 0 && <p>Chưa có lịch sử lớp học</p>}
             <table className="table">
                 <thead>
                     <tr>
@@ -34,9 +32,9 @@ const HistoryClasses = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <Items classes={class1} />
-                    <Items classes={class2} />
-                    <Items classes={class3} />
+                    {classes.map((item, index) => (
+                        <Items key={index} classes={item} />
+                    ))}
                 </tbody>
             </table>
         </div>

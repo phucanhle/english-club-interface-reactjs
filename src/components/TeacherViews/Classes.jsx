@@ -1,5 +1,24 @@
+import { useSelector } from "react-redux";
+import userService from "../../services/userServices";
+import { useEffect, useState } from "react";
 const Classes = ({ classes, status }) => {
-    const { classname, teacher, date, duration, topic } = classes;
+    const teacherId = useSelector((state) => state.user.userInfo.id);
+    const { id, name, teacher, date, timeStart, timeEnd, lesson_details } = classes;
+    const [lesson, setLesson] = useState([]);
+
+    const handleAttend = async (e) => {
+        const studentId = e.target.name;
+        const classId = id;
+
+        await userService.takeAttendance(classId, studentId, 1);
+    };
+    useEffect(() => {
+        const loadClasses = async () => {
+            const teacherClass = await userService.getStudentInTeacherClass(teacherId, id);
+            setLesson(teacherClass);
+        };
+        loadClasses();
+    }, []);
 
     return (
         <div>
@@ -10,20 +29,20 @@ const Classes = ({ classes, status }) => {
                             <img
                                 className="w-full h-full object-cover"
                                 src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
-                                alt={`${classname}'s portrait`}
+                                alt={`${name}'s portrait`}
                             />
                         </div>
                         <div className="ml-2">
-                            <h2 className="text-xl font-semibold text-gray-800">{classname}</h2>
+                            <h2 className="text-xl font-semibold text-gray-800">{name}</h2>
                             <p className="text-sm text-gray-600">{teacher}</p>
                         </div>
                         <button
                             className="btn"
-                            onClick={() => document.getElementById("my_modal_classlist").showModal()}
+                            onClick={() => document.getElementById(`my_modal_classlist_${date}`).showModal()}
                         >
                             Class list
                         </button>
-                        <dialog id="my_modal_classlist" className="modal">
+                        <dialog id={`my_modal_classlist_${date}`} className="modal">
                             <div className="modal-box">
                                 <h1 className="text-xl font-bold text-center my-4">Classlist attendance in {date}</h1>
                                 <div className="">
@@ -34,22 +53,47 @@ const Classes = ({ classes, status }) => {
                                                 <th></th>
                                                 <th>Name</th>
                                                 <th>Phone</th>
-                                                <th>Assignments Status</th>
                                                 <th>Attended</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr className="hover cursor-pointer">
-                                                <th>1</th>
-                                                <td>Cy Ganderton</td>
-                                                <td>Quality Control Specialist</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <label>
-                                                        <input type="checkbox" className="checkbox" />
-                                                    </label>
-                                                </td>
-                                            </tr>
+                                            {lesson.length > 0 ? (
+                                                lesson.map((student, index) => (
+                                                    <tr className="hover cursor-pointer" key={`${classes.id}.${index}`}>
+                                                        <th>{index + 1}</th>
+                                                        <td>{student.fullName}</td>
+                                                        <td>{student.phone}</td>
+                                                        {student.attended == 0 ? (
+                                                            <td>
+                                                                <label>
+                                                                    <input
+                                                                        name={student.id}
+                                                                        type="checkbox"
+                                                                        className="checkbox"
+                                                                        onClick={handleAttend}
+                                                                    />
+                                                                </label>
+                                                            </td>
+                                                        ) : (
+                                                            <td>
+                                                                <label>
+                                                                    <input
+                                                                        name={student.id}
+                                                                        type="checkbox"
+                                                                        className="checkbox"
+                                                                        checked
+                                                                        readOnly
+                                                                    />
+                                                                </label>
+                                                            </td>
+                                                        )}
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td>Không có học sinh đăng kí</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -59,11 +103,13 @@ const Classes = ({ classes, status }) => {
                             </form>
                         </dialog>
                     </div>
-                    <span className="mt-5 badge">Start: {date}</span>
+                    <span className="mt-5 badge">Ngày: {date}</span>
                     <br />
-                    <span className="mt-2 badge">Duration: {duration} hours</span>
+                    <span className="mt-2 badge">
+                        Thời gian: {timeStart} đến {timeEnd}
+                    </span>
                     <br />
-                    <span className="mt-2 badge badge-primary badge-outline">{topic}</span>
+                    <span className="mt-2 badge badge-primary badge-outline">{lesson_details}</span>
                 </div>
             </div>
         </div>

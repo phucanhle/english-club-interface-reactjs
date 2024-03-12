@@ -1,16 +1,30 @@
 import { useDispatch } from "react-redux";
 import { setRole } from "../../actions/authActions";
+import { setDataUser } from "../../actions/userActions";
+import userService from "../../services/userServices";
 
 const Navigative = () => {
     const dispatch = useDispatch();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        dispatch(setRole("teacher"));
+
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
+        try {
+            const response = await userService.login(email, password);
+            const role = response.role;
+            const data = JSON.stringify(response);
+            dispatch(setDataUser(response));
+            dispatch(setRole(role));
+        } catch (error) {
+            console.error("Error logging in:", error);
+        }
     };
 
     return (
-        <div className="navbar bg-base-100">
+        <div className="navbar bg-base-100 ">
             <div className="navbar-start">
                 <div className="dropdown">
                     <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -86,17 +100,17 @@ const Navigative = () => {
             {/* <a className="btn text-xl">Sign in</a> */}
             <div className="drawer drawer-end navbar-end">
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-                <div className="drawer-content">
+                <div className="drawer-content ">
                     {/* Page content here */}
                     <label htmlFor="my-drawer-4" className="drawer-button btn">
                         Đăng nhập
                     </label>
                 </div>
-                <div className="drawer-side">
+                <div className="drawer-side z-50">
                     <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
                     <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
                         {/* Sidebar content here */}
-                        <form className="my-10 mr-3 text-center">
+                        <form className="my-10 mr-3 text-center" onSubmit={handleLogin}>
                             <h1 className="text-xl mb-5">Đăng nhập</h1>
                             <label className="input input-bordered flex items-center gap-2">
                                 <svg
@@ -107,7 +121,7 @@ const Navigative = () => {
                                 >
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
                                 </svg>
-                                <input type="text" className="grow" placeholder="Username" />
+                                <input type="text" name="email" className="grow" placeholder="Email" />
                             </label>
                             <label className="input input-bordered flex items-center gap-2 mt-3">
                                 <svg
@@ -122,11 +136,15 @@ const Navigative = () => {
                                         clipRule="evenodd"
                                     />
                                 </svg>
-                                <input type="password" className="grow" placeholder="Password" />
+                                <input
+                                    type="password"
+                                    name="password"
+                                    className="grow"
+                                    placeholder="Password"
+                                    autoComplete="off"
+                                />
                             </label>
-                            <button className="btn btn-primary mt-5 w-full" onClick={handleLogin}>
-                                Đăng nhập
-                            </button>
+                            <button className="btn btn-primary mt-5 w-full">Đăng nhập</button>
                         </form>
                     </ul>
                 </div>

@@ -1,10 +1,10 @@
 // reducers/index.js
 import { combineReducers } from "redux";
 import authReducer from "./authReducer"; // import your auth reducer
-
+import userData from "./userReducer";
 const rootReducer = combineReducers({
-    auth: authReducer, // add your auth reducer to the root reducer
-    // add more reducers here if you have them
+    auth: authReducer,
+    user: userData,
 });
 
 export default rootReducer;

@@ -15,8 +15,8 @@ const Hero = () => {
             }}
         >
             <div className="hero-overlay bg-opacity-60"></div>
-            <div className="hero-content text-center text-neutral-content">
-                <div className="max-w-md">
+            <div className="hero-content text-center text-neutral-content z-10">
+                <div className="max-w-md ">
                     <h1 className="mb-5 text-base-100 text-5xl font-bold uppercase">học Tiếng Anh</h1>
                     <h1 className="mb-5 text-base-100 text-3xl font-bold uppercase">giao tiếp</h1>
                     <h1 className="mb-5 text-3xl font-bold uppercase">

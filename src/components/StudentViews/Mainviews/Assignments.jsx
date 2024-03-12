@@ -1,38 +1,4 @@
 const AssignmentsPage = ({ exams }) => {
-    exams = [
-        {
-            id: 1,
-            title: "Boost your conversion rate",
-            content:
-                "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-            date: "Mar 16, 2023",
-            type: "Reading",
-            class: "CC",
-            teacher: "Michael Foster",
-        },
-        {
-            id: 3,
-            title: "Boost your conversion rate",
-            content:
-                "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-            date: "Mar 16, 2023",
-            type: "Reading",
-            class: "CC",
-            teacher: "Michael Foster",
-        },
-        {
-            id: 21,
-            title: "Boost your conversion rate",
-            content:
-                "Illo sint voluptas. Error voluptates culpa eligendi. Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde. Sed exercitationem placeat consectetur nulla deserunt vel. Iusto corrupti dicta.",
-            date: "Mar 16, 2023",
-            type: "Reading",
-            class: "CC",
-            teacher: "Michael Foster",
-        },
-        // More posts...
-    ];
-
     return (
         <div className="p-4 sm:ml-64">
             <div className="mx-auto max-w-2xl lg:mx-0">
@@ -40,8 +6,11 @@ const AssignmentsPage = ({ exams }) => {
                 <p className="mt-2 text-lg leading-8 text-gray-600">Các bài tập được giao của bạn.</p>
             </div>
             <div className="mx-auto mt-5 grid  max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-gray-200 pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                {exams.map((exam) => (
-                    <article key={exam.id} className="flex max-w-xl flex-col items-start justify-between ">
+                {exams.map((exam, index) => (
+                    <article
+                        key={exam.id + index}
+                        className="flex max-w-xl flex-col items-start justify-between border border-dashed p-4 rounded-lg"
+                    >
                         <div className="flex items-center gap-x-4 text-xs">
                             <time className="text-gray-500">{exam.date}</time>
                             <span className="badge badge-outline badge-primary">{exam.type}</span>

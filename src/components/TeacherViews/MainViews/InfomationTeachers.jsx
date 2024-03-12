@@ -1,9 +1,11 @@
+import StudentList from "../StudentsList";
+
 const InfomationView = ({ teacherInformation }) => {
     const { id, fullName, classes, birthday, email, phoneNumber } = teacherInformation;
 
     return (
         <div className="p-4 sm:ml-64">
-            <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
+            <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
                 <div className="flex items-center mb-4">
                     <div className="w-24 h-24 overflow-hidden rounded-full">
                         <img
@@ -24,9 +26,9 @@ const InfomationView = ({ teacherInformation }) => {
                     <p className="text-gray-600">Phone: {phoneNumber}</p>
                 </div>
             </div>
-            {/* <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-10">
-                <HistoryClasses />
-            </div> */}
+            <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-10">
+                <StudentList />
+            </div>
         </div>
     );
 };
