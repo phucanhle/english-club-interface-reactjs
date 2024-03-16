@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Classes from "../Classes";
 import userService from "../../../services/userServices";
 import { useSelector } from "react-redux";
 
-const ClassesView = ({ classes }) => {
+const ClassesView = () => {
     const teacherId = useSelector((state) => state.user.userInfo.id);
     const [topic, setTopic] = useState("");
     const [level, setLevel] = useState("");
@@ -13,29 +13,47 @@ const ClassesView = ({ classes }) => {
     const [date, setStartDate] = useState("");
     const [timeStart, setStartTime] = useState("");
     const [classList, setClassList] = useState([]);
-    const [maxStudent, setMaxStudent] = useState(0);
+    const [classes, setClasses] = useState([]);
+
+    useEffect(() => {
+        const loadClasses = async () => {
+            const result = await userService.getClasses();
+            setClasses(result);
+        };
+
+        loadClasses();
+    }, []);
+
+    const setMaxStudent = (className) => {
+        switch (className) {
+            case "Complementary Class":
+                return 12;
+            case "Social Club":
+                return 20;
+            case "Encounter":
+                return 5;
+            default:
+                break;
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!className || !date || !topic || !timeStart || !timeEnd || !level || !location) {
-            alert("Please fill in all fields");
-            return;
-        }
+            let missingFields = [];
+            if (!className) missingFields.push("className");
+            if (!date) missingFields.push("date");
+            if (!topic) missingFields.push("topic");
+            if (!timeStart) missingFields.push("timeStart");
+            if (!timeEnd) missingFields.push("timeEnd");
+            if (!level) missingFields.push("level");
+            if (!location) missingFields.push("location");
 
-        switch (className) {
-            case "Complementary Class":
-                setMaxStudent(12);
-                break;
-            case "Social Club":
-                setMaxStudent(20);
-                break;
-            case "Encounter":
-                setMaxStudent(5);
-                break;
-            default:
-                setMaxStudent("0"); // Set a default value if necessary
-                break;
+            let missingFieldsString = missingFields.join(", ");
+            alert(`Please fill in the following fields: ${missingFieldsString}`);
+
+            return;
         }
 
         // Call API or perform action to create new class
@@ -46,26 +64,21 @@ const ClassesView = ({ classes }) => {
             topic,
             timeStart,
             timeEnd,
-            maxStudent,
+            maxStudent: setMaxStudent(className),
             level,
             location,
         };
 
+        console.log(newClass);
+
         try {
             const result = await userService.createClass(newClass);
-
             alert(result.message);
             // Update class list
             setClassList([...classList, result]);
         } catch (error) {
             console.error("Error creating class:", error);
         }
-
-        setClassName("");
-        setStartDate("");
-        setTopic("");
-        setStartTime("");
-        setEndTime("");
     };
 
     return (
@@ -105,13 +118,19 @@ const ClassesView = ({ classes }) => {
                                 />
                             </div>
                             <div className="w-full mt-5 max-w-xs">
-                                <span className="text-bold">Min level:</span>
-                                <input
-                                    type="number"
-                                    value={level}
+                                <span className="text-bold">Level:</span>
+                                <select
+                                    className="select select-bordered w-full max-w-xs mt-2 "
                                     onChange={(e) => setLevel(e.target.value)}
-                                    className="input input-bordered w-full mt-2"
-                                />
+                                >
+                                    <option value="1">Level : 1-2-3</option>
+                                    <option value="2">Level : 4-5-6</option>
+                                    <option value="3">Level : 7-8-9</option>
+                                    <option value="4">Level : 10-11-12</option>
+                                    <option value="5">Level : 13-14-15</option>
+                                    <option value="6">Level : 16-17-18</option>
+                                    <option value="7">Level : 19-20</option>
+                                </select>
                             </div>
                             <div className="w-full mt-5 max-w-xs">
                                 <span className="text-bold">Location:</span>
@@ -159,7 +178,14 @@ const ClassesView = ({ classes }) => {
             </div>
             <hr />
             <div role="tablist" className="tabs tabs-lifted mt-10">
-                <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="My classes" checked />
+                <input
+                    type="radio"
+                    name="my_tabs_2"
+                    role="tab"
+                    className="tab"
+                    aria-label="My classes"
+                    defaultChecked
+                />
                 <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-16">
                         {classes.map((classItem, index) => (

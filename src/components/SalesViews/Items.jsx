@@ -20,9 +20,15 @@ const Items = ({ index, item, onUpdate }) => {
     };
 
     const handleSave = async () => {
-        const result = await userService.updateUser(user_id, editedItem);
-        setIsEditing(false);
-        onUpdate();
+        try {
+            const result = await userService.updateUser(user_id, editedItem);
+            console.log(result);
+            toggleEdit();
+            onUpdate();
+        } catch (error) {
+            toggleEdit();
+            onUpdate();
+        }
     };
 
     return (
@@ -83,7 +89,7 @@ const Items = ({ index, item, onUpdate }) => {
             </td>
             <td>{endDate}</td>
             <td>{nameCourse}</td>
-            <td>{numberWithCommas(priceCourse)}đ"</td>
+            <td>{numberWithCommas(priceCourse)}đ</td>
             <td>
                 {isEditing ? (
                     <button className="btn btn-outline btn-success" onClick={handleSave}>

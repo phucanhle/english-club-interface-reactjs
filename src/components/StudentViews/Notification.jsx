@@ -1,5 +1,5 @@
 const Notification = ({ notification }) => {
-    const { title, userSent, date, content } = notification;
+    const { title, userSentId, date, content } = notification;
 
     return (
         <div className="w-full my-2 p-4 text-gray-900 bg-white rounded-lg shadow dark:bg-gray-800 dark:text-gray-300">
@@ -58,7 +58,9 @@ const Notification = ({ notification }) => {
                 <div className="ms-3 text-sm font-normal">
                     <div className="text-sm font-semibold text-gray-900 dark:text-white">{title}</div>
                     <div className="text-sm font-normal">{content}</div>
-                    <span className="text-xs font-medium text-blue-600 dark:text-blue-500">Người gửi: {userSent}</span>
+                    <span className="text-xs font-medium text-blue-600 dark:text-blue-500">
+                        Người gửi: {userSentId}
+                    </span>
                 </div>
             </div>
         </div>

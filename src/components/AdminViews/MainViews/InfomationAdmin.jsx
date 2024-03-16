@@ -1,65 +1,107 @@
+import { useState, useEffect } from "react";
+import userService from "../../../services/userServices";
 import Items from "../Items";
 
 const InfomationView = ({ sales }) => {
-    const { id, fullName, courses, birthday, email, phoneNumber } = sales;
+    const { id, fullName } = sales;
+    const [coursesOfSales, setCoursesOfSale] = useState([]);
+    const [studentsAndCourses, setStudentAndCourses] = useState([]);
+    const [itemUpdated, setItemUpdated] = useState(false);
 
-    const studentsAndCourses = [
-        {
-            id: "ABC123",
-            fullName: "John Doe",
-            phone: "+1234567890",
-            email: "john.doe@example.com",
-            address: "123 Main St, Cityville, USA",
-            endCourse: "2024-06-30",
-            nameCourse: "Introduction to Programming",
-            priceCourse: 13990000,
-        },
-        {
-            id: "ABC2123",
-            fullName: "John Doe",
-            phone: "+1234567890",
-            email: "john.doe@example.com",
-            address: "123 Main St, Cityville, USA",
-            endCourse: "2024-06-30",
-            nameCourse: "Introduction to Programming",
-            priceCourse: 13990000,
-        },
-        {
-            id: "ABC12123",
-            fullName: "John Doe",
-            phone: "+1234567890",
-            email: "john.doe@example.com",
-            address: "123 Main St, Cityville, USA",
-            endCourse: "2024-06-30",
-            nameCourse: "Introduction to Programming",
-            priceCourse: 13990000,
-        },
-        {
-            id: "DEF456",
-            fullName: "Jane Smith",
-            phone: "+1987654321",
-            email: "jane.smith@example.com",
-            address: "456 Elm St, Townsville, USA",
-            endCourse: "2024-07-15",
-            nameCourse: "Data Science Fundamentals",
-            priceCourse: 10990000,
-        },
-        {
-            id: "GHI789",
-            fullName: "Alice Johnson",
-            phone: "+1122334455",
-            email: "alice.johnson@example.com",
-            address: "789 Oak St, Villageton, USA",
-            endCourse: "2024-08-20",
-            nameCourse: "Web Development Bootcamp",
-            priceCourse: 3990000,
-        },
-    ];
+    const [nameCourse, setNameCourse] = useState("");
+    const [priceCourse, setPriceCourse] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
-    const coursesOfSales = [
-        { nameCourse: "Khóa học cho người mới bắt đầu", duration: "32", price: 10990000 },
-        { nameCourse: "Khóa cấp tốc", duration: "3", price: 3990000 },
-    ];
+    const [courseExtend, setCourseExtend] = useState("");
+    const [studentToExtend, setStudentToExtend] = useState("");
+
+    const handleExtend = async (e) => {
+        e.preventDefault();
+        const result = await userService.extendCourse(studentToExtend, courseExtend);
+        alert(result.message);
+    };
+
+    const handleAddNewCourse = async (e) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+
+        // Create a new course object
+        const newCourse = {
+            nameCourse: nameCourse,
+            priceCourse: priceCourse,
+            startDate: startDate,
+            endDate: endDate,
+        };
+
+        try {
+            await userService.createCourse(newCourse);
+            alert("Tạo khóa học thành công.");
+        } catch (error) {
+            alert("Tạo khóa học thất bại.");
+        }
+
+        setNameCourse("");
+        setPriceCourse("");
+        setStartDate("");
+        setEndDate("");
+    };
+
+    const [formData, setFormData] = useState({
+        saleId: id,
+        role: "students",
+        fullName: "",
+        course: "",
+        initialLevel: "",
+        birthday: "",
+        email: "",
+        phone: "",
+        address: "",
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await userService.register(formData);
+            alert("Đăng kí thành công.");
+            setFormData({
+                fullName: "",
+                course: "",
+                initialLevel: "",
+                birthday: "",
+                email: "",
+                phone: "",
+                address: "",
+            });
+        } catch (error) {
+            alert("Đăng kí thất bại.");
+        }
+    };
+    const handleItemUpdate = () => {
+        setItemUpdated(!itemUpdated);
+    };
+
+    useEffect(() => {
+        const loadCourses = async () => {
+            const result = await userService.getCourses();
+            setCoursesOfSale(result);
+        };
+
+        const loadStudentCourses = async () => {
+            const result = await userService.getStudents();
+            setStudentAndCourses(result);
+        };
+
+        loadStudentCourses();
+        loadCourses();
+    }, [itemUpdated]);
     const calculateTotalPrice = (items) => {
         let totalPrice = 0;
         items.forEach((item) => {
@@ -78,7 +120,7 @@ const InfomationView = ({ sales }) => {
                     </div>
                     <div className="ml-4">
                         <h2 className="text-lg font-semibold">{fullName}</h2>
-                        <p className="text-gray-500">ID Salse: {id}</p>
+                        <p className="text-gray-500">ID: {id}</p>
                     </div>
                 </div>
             </div>
@@ -92,6 +134,7 @@ const InfomationView = ({ sales }) => {
                     </p>
                     <hr />
                     <div className="flex">
+                        {/* Thêm học viên */}
                         <div className="mx-auto max-w-2xl lg:mx-0 my-10">
                             <button
                                 className="btn"
@@ -101,21 +144,30 @@ const InfomationView = ({ sales }) => {
                             </button>
                             <dialog id="my_modal_classes" className="modal">
                                 <div className="modal-box">
-                                    <form className="py-4 flex items-center flex-col">
+                                    <form className="py-4 flex items-center flex-col" onSubmit={handleSubmit}>
                                         <h3 className="font-bold text-xl mb-3">Thêm học viên mới</h3>
                                         <div className="w-full max-w-xs">
                                             <span className="text-bold">Họ tên học viên </span>
                                             <input
                                                 type="text"
+                                                name="fullName"
+                                                value={formData.fullName}
+                                                onChange={handleChange}
                                                 placeholder="Họ và tên"
                                                 className="input input-bordered w-full mt-2"
                                             />
                                         </div>
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold">Khóa học:</span>
-                                            <select className="select select-bordered w-full max-w-xs mt-2">
+                                            <select
+                                                name="course"
+                                                value={formData.course}
+                                                onChange={handleChange}
+                                                className="select select-bordered w-full max-w-xs mt-2"
+                                            >
+                                                <option>-</option>
                                                 {coursesOfSales.map((item, key) => (
-                                                    <option key={key}>
+                                                    <option key={key} value={item.id}>
                                                         {item.nameCourse} - {item.duration} tháng
                                                     </option>
                                                 ))}
@@ -125,18 +177,30 @@ const InfomationView = ({ sales }) => {
                                             <span className="text-bold">Trình độ ban đầu:</span>
                                             <input
                                                 type="text"
+                                                name="initialLevel"
+                                                value={formData.initialLevel}
+                                                onChange={handleChange}
                                                 placeholder="Trình độ ban đầu"
                                                 className="input input-bordered w-full mt-2"
                                             />
                                         </div>
                                         <div className="w-full mt-5 max-w-xs">
-                                            <span className="text-bold">Ngày bắt đầu:</span>
-                                            <input type="date" className="input input-bordered w-full mt-2" />
+                                            <span className="text-bold">Sinh nhật:</span>
+                                            <input
+                                                type="date"
+                                                name="birthday"
+                                                value={formData.birthday}
+                                                onChange={handleChange}
+                                                className="input input-bordered w-full mt-2"
+                                            />
                                         </div>
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold ">Email:</span>
                                             <input
                                                 type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
                                                 placeholder="Email"
                                                 className="input input-bordered w-full mt-2"
                                             />
@@ -145,19 +209,27 @@ const InfomationView = ({ sales }) => {
                                             <span className="text-bold ">Số điện thoại:</span>
                                             <input
                                                 type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
                                                 placeholder="Số điện thoại"
                                                 className="input input-bordered w-full mt-2"
                                             />
-                                        </div>{" "}
+                                        </div>
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold ">Địa chỉ học viên:</span>
                                             <input
                                                 type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
                                                 placeholder="Địa chỉ"
                                                 className="input input-bordered w-full mt-2"
                                             />
                                         </div>
-                                        <button className="btn w-full mt-5 max-w-xs">Thêm</button>
+                                        <button type="submit" className="btn w-full mt-5 max-w-xs">
+                                            Thêm
+                                        </button>
                                     </form>
                                 </div>
                                 <form method="dialog" className="modal-backdrop">
@@ -165,6 +237,7 @@ const InfomationView = ({ sales }) => {
                                 </form>
                             </dialog>
                         </div>
+                        {/* Gia hạn học viên */}
                         <div className="mx-auto max-w-2xl lg:mx-0 my-10">
                             <button
                                 className="btn mx-5"
@@ -174,34 +247,37 @@ const InfomationView = ({ sales }) => {
                             </button>
                             <dialog id="my_modal_classes2" className="modal">
                                 <div className="modal-box">
-                                    <form className="py-4 flex items-center flex-col">
+                                    <form className="py-4 flex items-center flex-col" onSubmit={handleExtend}>
                                         <h3 className="font-bold text-xl mb-3">Gia hạn học viên</h3>
 
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold">Học viên:</span>
-                                            <select className="select select-bordered w-full max-w-xs mt-2">
+                                            <select
+                                                className="select select-bordered w-full max-w-xs mt-2"
+                                                onChange={(e) => setStudentToExtend(e.target.value)}
+                                            >
+                                                <option value="">-</option>
                                                 {studentsAndCourses.map((item, key) => (
-                                                    <option key={key}>
-                                                        {item.id} - {item.fullName}
+                                                    <option key={key} value={item.user_id}>
+                                                        {item.user_id} - {item.fullName}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold">Khóa học:</span>
-                                            <select className="select select-bordered w-full max-w-xs mt-2">
+                                            <select
+                                                className="select select-bordered w-full max-w-xs mt-2"
+                                                onChange={(e) => setCourseExtend(e.target.value)}
+                                            >
+                                                <option value="">-</option>
                                                 {coursesOfSales.map((item, key) => (
-                                                    <option key={key}>
-                                                        {item.nameCourse} - {item.duration} tháng
+                                                    <option key={key} value={item.id}>
+                                                        {item.nameCourse} - {item.startDate}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className="w-full mt-5 max-w-xs">
-                                            <span className="text-bold">Ngày bắt đầu:</span>
-                                            <input type="date" className="input input-bordered w-full mt-2" />
-                                        </div>
-
                                         <button className="btn w-full mt-5 max-w-xs">Thêm</button>
                                     </form>
                                 </div>
@@ -210,8 +286,69 @@ const InfomationView = ({ sales }) => {
                                 </form>
                             </dialog>
                         </div>
-                    </div>
 
+                        {/* Thêm khóa học */}
+                        <div className="mx-auto max-w-2xl lg:mx-0 my-10">
+                            <button
+                                className="btn mr-5"
+                                onClick={() => document.getElementById("new_courses").showModal()}
+                            >
+                                Thêm khóa học
+                            </button>
+                            <dialog id="new_courses" className="modal">
+                                <div className="modal-box">
+                                    <form className="py-4 flex items-center flex-col" onSubmit={handleAddNewCourse}>
+                                        <h3 className="font-bold text-xl mb-3">Thêm khóa học mới</h3>
+
+                                        <div className="w-full mt-5 max-w-xs">
+                                            <span className="text-bold">Tên khóa học:</span>
+                                            <input
+                                                type="text"
+                                                className="input input-bordered w-full mt-2"
+                                                value={nameCourse}
+                                                onChange={(e) => setNameCourse(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <div className="w-full mt-5 max-w-xs">
+                                            <span className="text-bold">Ngày bắt đầu:</span>
+                                            <input
+                                                type="date"
+                                                className="input input-bordered w-full mt-2"
+                                                value={startDate}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="w-full mt-5 max-w-xs">
+                                            <span className="text-bold">Ngày kết thúc:</span>
+                                            <input
+                                                type="date"
+                                                className="input input-bordered w-full mt-2"
+                                                value={endDate}
+                                                onChange={(e) => setEndDate(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="w-full mt-5 max-w-xs">
+                                            <span className="text-bold">Giá:</span>
+                                            <input
+                                                type="number"
+                                                className="input input-bordered w-full mt-2"
+                                                value={priceCourse}
+                                                onChange={(e) => setPriceCourse(e.target.value)}
+                                            />
+                                        </div>
+
+                                        <button type="submit" className="btn w-full mt-5 max-w-xs">
+                                            Thêm
+                                        </button>
+                                    </form>
+                                </div>
+                                <form method="dialog" className="modal-backdrop">
+                                    <button>close</button>
+                                </form>
+                            </dialog>
+                        </div>
+                    </div>
                     <hr />
                 </div>
                 <div className="overflow-x-auto mt-10">
@@ -229,10 +366,9 @@ const InfomationView = ({ sales }) => {
                                 <th>Giá khóa học</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             {studentsAndCourses.map((item, i) => (
-                                <Items key={item.id} index={i + 1} item={item} />
+                                <Items key={i} index={i + 1} item={item} onUpdate={handleItemUpdate} />
                             ))}
                         </tbody>
                     </table>

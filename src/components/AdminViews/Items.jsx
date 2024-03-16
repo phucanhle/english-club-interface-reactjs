@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const Items = ({ index, item }) => {
-    const { id, fullName, phone, email, address, endCourse, nameCourse, priceCourse } = item;
+    const { id, fullName, phone, email, address, endDate, nameCourse, priceCourse } = item;
     const numberWithCommas = (number) => {
         return number.toLocaleString("vi-VN");
     };
@@ -88,13 +88,13 @@ const Items = ({ index, item }) => {
                 {isEditing ? (
                     <input
                         type="text"
-                        name="endCourse"
-                        value={editedItem.endCourse}
+                        name="endDate"
+                        value={editedItem.endDate}
                         onChange={handleInputChange}
                         className="input input-bordered w-full"
                     />
                 ) : (
-                    endCourse
+                    endDate
                 )}
             </td>
             <td>

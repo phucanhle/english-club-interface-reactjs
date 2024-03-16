@@ -15,11 +15,11 @@ const Navigative = () => {
         try {
             const response = await userService.login(email, password);
             const role = response.role;
-            const data = JSON.stringify(response);
             dispatch(setDataUser(response));
             dispatch(setRole(role));
         } catch (error) {
             console.error("Error logging in:", error);
+            alert(error.response.message);
         }
     };
 

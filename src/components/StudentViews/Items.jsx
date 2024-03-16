@@ -1,5 +1,5 @@
 const Items = ({ classes }) => {
-    const { name, timeStart, timeEnd, location, score, date } = classes;
+    const { name, timeStart, timeEnd, location, score, date, attended } = classes;
     return (
         <tr>
             <td>
@@ -17,6 +17,13 @@ const Items = ({ classes }) => {
                     {timeStart} đến {timeEnd}
                 </button>
             </th>
+            <td>
+                {attended ? (
+                    <span className="badge badge-outline badge-success">Completed</span>
+                ) : (
+                    <span className="badge badge-outline badge-error">Missed</span>
+                )}
+            </td>
         </tr>
     );
 };

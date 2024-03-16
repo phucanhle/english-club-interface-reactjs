@@ -2,7 +2,7 @@ import { SET_ROLE } from "../actions/authActions";
 
 const initialState = {
     isLoggedIn: false,
-    role: "guess", // assume 'guess' role as default
+    role: "guess", // Giả định vai trò mặc định là 'guess'
 };
 
 const authReducer = (state = initialState, action) => {

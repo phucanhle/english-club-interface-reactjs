@@ -5,6 +5,12 @@ import userService from "../../services/userServices";
 const HistoryClasses = ({ student }) => {
     const [classes, setClasses] = useState([]);
 
+    const isDatePassed = (dateString) => {
+        const providedDate = new Date(dateString);
+        const currentDate = new Date();
+        return currentDate > providedDate;
+    };
+
     useEffect(() => {
         const loadHistory = async (idStudent) => {
             try {
@@ -32,9 +38,7 @@ const HistoryClasses = ({ student }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {classes.map((item, index) => (
-                        <Items key={index} classes={item} />
-                    ))}
+                    {classes.map((item, index) => isDatePassed(item.date) && <Items key={index} classes={item} />)}
                 </tbody>
             </table>
         </div>

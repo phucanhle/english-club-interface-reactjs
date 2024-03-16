@@ -8,6 +8,19 @@ const InfomationView = ({ sales }) => {
     const [studentsAndCourses, setStudentAndCourses] = useState([]);
     const [itemUpdated, setItemUpdated] = useState(false);
 
+    const [courseExtend, setCourseExtend] = useState("");
+    const [studentToExtend, setStudentToExtend] = useState("");
+
+    const handleExtend = async (e) => {
+        e.preventDefault();
+        console.log(`${courseExtend}, ${studentToExtend}`);
+        const result = await userService.extendCourse(studentToExtend, courseExtend);
+        alert(result.message);
+    };
+
+    const handleItemUpdate = () => {
+        setItemUpdated(!itemUpdated);
+    };
     const [formData, setFormData] = useState({
         saleId: id,
         role: "students",
@@ -30,12 +43,21 @@ const InfomationView = ({ sales }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        const result = await userService.register(formData);
-        console.log(result);
-    };
-    const handleItemUpdate = () => {
-        setItemUpdated(!itemUpdated);
+        try {
+            await userService.register(formData);
+            alert("Đăng kí thành công.");
+            setFormData({
+                fullName: "",
+                course: "",
+                initialLevel: "",
+                birthday: "",
+                email: "",
+                phone: "",
+                address: "",
+            });
+        } catch (error) {
+            alert("Đăng kí thất bại.");
+        }
     };
 
     useEffect(() => {
@@ -67,7 +89,7 @@ const InfomationView = ({ sales }) => {
                     <div className="w-24 h-24 overflow-hidden rounded-full">
                         <img
                             className="w-full h-full object-cover"
-                            src="https://suckhoedoisong.qltns.mediacdn.vn/324455921873985536/2023/7/29/anh-soai-2-1690527641924684762733-1690630870572-16906308709641687648154.jpg"
+                            src="https://static2-images.vnncdn.net/files/publish/2022/12/8/meo-1-1416.jpg"
                             alt="Avatar"
                         />
                     </div>
@@ -77,7 +99,6 @@ const InfomationView = ({ sales }) => {
                     </div>
                 </div>
                 <div>
-                    <p className="text-gray-600">Số khóa học bán được: {}</p>
                     <p className="text-gray-600">Sinh nhật: {birthday}</p>
                     <p className="text-gray-600">Email: {email}</p>
                     <p className="text-gray-600">Điện thoại: {phone}</p>
@@ -92,7 +113,9 @@ const InfomationView = ({ sales }) => {
                         Tổng giá khóa bán được: <strong> {calculateTotalPrice(studentsAndCourses)}</strong>đ
                     </p>
                     <hr />
+
                     <div className="flex">
+                        {/* Thêm học viên mới */}
                         <div className="mx-auto max-w-2xl lg:mx-0 my-10">
                             <button
                                 className="btn"
@@ -126,7 +149,7 @@ const InfomationView = ({ sales }) => {
                                                 <option>-</option>
                                                 {coursesOfSales.map((item, key) => (
                                                     <option key={key} value={item.id}>
-                                                        {item.nameCourse} - {item.duration} tháng
+                                                        {item.nameCourse} - {item.startDate}
                                                     </option>
                                                 ))}
                                             </select>
@@ -195,6 +218,8 @@ const InfomationView = ({ sales }) => {
                                 </form>
                             </dialog>
                         </div>
+
+                        {/* Gia hạn học viên */}
                         <div className="mx-auto max-w-2xl lg:mx-0 my-10">
                             <button
                                 className="btn mx-5"
@@ -204,35 +229,41 @@ const InfomationView = ({ sales }) => {
                             </button>
                             <dialog id="my_modal_classes2" className="modal">
                                 <div className="modal-box">
-                                    <form className="py-4 flex items-center flex-col">
+                                    <form className="py-4 flex items-center flex-col" onSubmit={handleExtend}>
                                         <h3 className="font-bold text-xl mb-3">Gia hạn học viên</h3>
 
+                                        {/* Chọn học viên */}
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold">Học viên:</span>
-                                            <select className="select select-bordered w-full max-w-xs mt-2">
+                                            <select
+                                                className="select select-bordered w-full max-w-xs mt-2"
+                                                onChange={(e) => setStudentToExtend(e.target.value)}
+                                            >
+                                                <option value="">-</option>
                                                 {studentsAndCourses.map((item, key) => (
-                                                    <option key={key}>
+                                                    <option key={key} value={item.user_id}>
                                                         {item.user_id} - {item.fullName}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
+
+                                        {/* Chọn khóa */}
                                         <div className="w-full mt-5 max-w-xs">
                                             <span className="text-bold">Khóa học:</span>
-                                            <select className="select select-bordered w-full max-w-xs mt-2">
+                                            <select
+                                                className="select select-bordered w-full max-w-xs mt-2"
+                                                onChange={(e) => setCourseExtend(e.target.value)}
+                                            >
+                                                <option value="">-</option>
                                                 {coursesOfSales.map((item, key) => (
-                                                    <option key={key}>
-                                                        {item.nameCourse} - {item.duration} tháng
+                                                    <option key={key} value={item.id}>
+                                                        {item.nameCourse} - {item.startDate}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className="w-full mt-5 max-w-xs">
-                                            <span className="text-bold">Ngày bắt đầu:</span>
-                                            <input type="date" className="input input-bordered w-full mt-2" />
-                                        </div>
-
-                                        <button className="btn w-full mt-5 max-w-xs">Thêm</button>
+                                        <button className="btn w-full mt-5 max-w-xs">Gia hạn</button>
                                     </form>
                                 </div>
                                 <form method="dialog" className="modal-backdrop">
