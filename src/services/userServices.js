@@ -1,12 +1,14 @@
 import axios from "axios";
 import { Buffer } from "buffer";
 Buffer.from("anything", "base64");
-const BASE_URL = "http://localhost:3000";
+// const BASE_URL = "http://localhost:3000";
+const BASE_URL = "https://api-english-club-server-nodejs.onrender.com/";
 
 const userService = {
     login: async (email, password) => {
         try {
             const response = await axios.post(`${BASE_URL}/users/login`, { email, password });
+            console.log(response);
             return response.data;
         } catch (error) {
             console.error("Error logging in:", error);
